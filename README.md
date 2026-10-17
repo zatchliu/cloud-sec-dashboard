@@ -4,13 +4,13 @@ Production-style **DevSecOps** learning project: a cloud security dashboard
 built with a public GitHub pipeline, local-first development, and $0 cloud
 spend in early phases.
 
-**Phase 0 (current):** repository, signed-commit workflow, pre-commit
-(gitleaks + Conventional Commits), and a minimal GitHub Actions job. There is
-no API, UI, or AWS integration yet.
+**Phase 0 (current):** local repo, pre-commit (gitleaks + Conventional Commits),
+and a GitHub Actions workflow that runs those same checks. There is no API, UI,
+or AWS integration yet. Signed commits and branch protection are **not** used.
 
 Stack decisions: [`docs/adr/0001-tech-stack.md`](docs/adr/0001-tech-stack.md).
 Threat model (draft): [`docs/threat-model.md`](docs/threat-model.md).
-GitHub click-path (you do this): [`docs/github-setup.md`](docs/github-setup.md).
+Create the GitHub remote and watch Actions: [`docs/github-setup.md`](docs/github-setup.md).
 Agent/contributor rules: [`AGENTS.md`](AGENTS.md).
 
 ## Local environment

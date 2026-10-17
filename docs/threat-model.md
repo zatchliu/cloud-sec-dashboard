@@ -35,12 +35,12 @@ Future user --> React UI --> FastAPI --> PostgreSQL
 
 | Category | Phase 0 (this repo) | Later (to be designed) |
 | --- | --- | --- |
-| Spoofing | Unsigned commits can fake authorship; we use SSH commit signing locally and may require it on `main` after the first verified commit. | Dashboard login, AWS IAM identity for the scanner. |
-| Tampering | Unprotected `main` allows force-push; branch ruleset + required CI. | Integrity of findings, IaC, container images. |
-| Repudiation | Conventional Commits + PR history on `main`. | Audit log of who scanned which account. |
+| Spoofing | Not in scope for this solo repo (no signed commits). | Dashboard login, AWS IAM identity for the scanner. |
+| Tampering | CI re-runs hooks on each push; no branch protection. | Integrity of findings, IaC, container images. |
+| Repudiation | Git history on `main`. | Audit log of who scanned which account. |
 | Information disclosure | gitleaks + gitignore of `.env`; assume public GitHub. | XSS in the UI, over-broad AWS list APIs, Postgres exposure. |
 | Denial of service | N/A for a docs/tooling repo. | Rate limits, AWS API throttling, expensive scans. |
-| Elevation of privilege | Admin bypass on GitHub rulesets; keep the owner account locked down. | Confused deputy: scanner IAM too broad; IDOR on findings. |
+| Elevation of privilege | Single GitHub owner account. | Confused deputy: scanner IAM too broad; IDOR on findings. |
 
 ## Phase 0 controls (in place)
 

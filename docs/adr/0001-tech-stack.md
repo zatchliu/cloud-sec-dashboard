@@ -5,7 +5,7 @@
 
 ## Context
 
-This repository is a learning and resume project: a cloud security dashboard
+This repository is a learning project: a cloud security dashboard
 built with production-style DevSecOps practices, at **zero ongoing cloud
 cost** during early phases. The stack must be modern, hireable, and runnable
 on a laptop (WSL2) before any AWS demo.
@@ -46,10 +46,12 @@ on a laptop (WSL2) before any AWS demo.
 - A later demo may use AWS Free Tier / credits. Until then, assume **$0**.
 - **Public GitHub** on purpose: resume visibility and free Actions/GHCR later.
 
-### Merge strategy
+### GitHub and merging
 
-- **Squash merge** into `main` for a solo repository (linear history, one
-  Conventional Commit per PR on `main`).
+- Public repo so Actions minutes stay free.
+- **Push to `main` is fine** (solo learning). No signed commits, required
+  reviewers, or branch protection.
+- Optional PRs are only useful to see the `pull_request` workflow trigger.
 
 ## Consequences
 
