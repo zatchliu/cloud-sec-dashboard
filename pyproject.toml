@@ -1,0 +1,19 @@
+[project]
+name = "cloud-sec-dashboard"
+version = "0.1.0"
+description = "Cloud security dashboard — a production-style DevSecOps learning project"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "zacharyliu" }]
+
+# Application dependencies land in later phases. Phase 0 is tooling only.
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.0",
+]
+
+[tool.uv]
+package = false
