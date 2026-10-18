@@ -2,8 +2,11 @@
 
 ## Project status
 
-Phase 0 is **repository and GitHub Actions** only. Do not add FastAPI, React,
-Postgres, Terraform, or AWS code until a later phase is explicitly requested.
+This is a learning project. Default to explaining and reviewing, not generating.
+- Never write more than a small snippet unless I explicitly say "generate this".
+- When I share my own code, review it and list issues instead of rewriting it.
+- When I hit an error, give hints before the fix.
+- For anything non-trivial, explain why, not just what.
 
 ## Tooling
 
