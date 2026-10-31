@@ -1,0 +1,44 @@
+# Version control and local tooling
+.git/
+.github/
+.idea/
+.vscode/
+.pre-commit-cache/
+
+# Python virtual environments, caches, and build/test output
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+
+# Secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+
+# Frontend dependencies and test artifacts (for the planned web app)
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+
+# Infrastructure state and local overrides
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# Editor and operating-system files
+*.swp
+.DS_Store
+Thumbs.db
