@@ -2,6 +2,12 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-@app.get("/health")
+
+@app.get("/")
 async def root() -> dict[str, str]:
-    return {"status" : "ok"}
+    return {"message": "Hello World"}
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
