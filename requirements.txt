@@ -47,7 +47,7 @@ pre-commit==4.7.0
 protobuf==7.36.2
 psycopg==3.3.6
 psycopg-binary==3.3.6
-pydantic==2.14.1
+pydantic==2.14.2
 pydantic-core==2.50.1
 pydantic-extra-types==2.11.1
 pydantic-settings==2.16.0
