@@ -135,3 +135,37 @@ def test_collect_s3_buckets_reraises_unexpected_public_access_block_errors() -> 
 
     with pytest.raises(ClientError, match="AccessDenied"):
         collect_s3_buckets(client)
+
+
+def test_collect_s3_buckets_reraises_unexpected_bucket_policy_errors() -> None:
+    client = Mock()
+    client.list_buckets.return_value = {"Buckets": [{"Name": "audit-logs"}]}
+    client.get_bucket_location.return_value = {"LocationConstraint": None}
+    client.get_public_access_block.return_value = {
+        "PublicAccessBlockConfiguration": {
+            "BlockPublicAcls": True,
+            "IgnorePublicAcls": True,
+            "BlockPublicPolicy": True,
+            "RestrictPublicBuckets": True,
+        }
+    }
+    client.get_bucket_acl.return_value = {"Grants": []}
+    client.get_bucket_policy.side_effect = ClientError(
+        {"Error": {"Code": "AccessDenied", "Message": "Access denied"}},
+        "GetBucketPolicy",
+    )
+
+    with pytest.raises(ClientError, match="AccessDenied"):
+        collect_s3_buckets(client)
+
+    client.get_bucket_policy.assert_called_once_with(Bucket="audit-logs")
+
+
+def test_collect_s3_buckets_no_policy_returns_none() -> None:
+    with mock_aws():
+        client = boto3.client("s3", region_name="us-east-1")
+        client.create_bucket(Bucket="audit-logs")
+
+        resources = collect_s3_buckets(client)
+
+    assert resources[0].config["policy"] is None
