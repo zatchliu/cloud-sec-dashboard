@@ -39,7 +39,7 @@ opentelemetry-exporter-otlp-proto-common==1.45.1
 opentelemetry-exporter-otlp-proto-http==1.45.1
 opentelemetry-proto==1.45.1
 opentelemetry-sdk==1.45.1
-opentelemetry-semantic-conventions==0.66b1
+opentelemetry-semantic-conventions==0.66b2
 packaging==26.3
 platformdirs==4.13.4
 pluggy==1.7.0
