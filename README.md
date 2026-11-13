@@ -1,55 +1,78 @@
 # Cloud security dashboard
 
-Production-style **DevSecOps** learning project: a cloud security dashboard
-built with a public GitHub pipeline, local-first development, and $0 cloud
-spend in early phases.
+A local-first cloud security dashboard learning project built with Python 3.12,
+FastAPI, and AWS SDK tooling. The repository currently contains a small API,
+domain models for resources and findings, an S3 bucket collector, PostgreSQL
+configuration and an initial database migration. This is an early foundation:
+there is no dashboard UI, scan orchestration, findings API, authentication, or
+deployed AWS infrastructure yet.
 
-**Phase 0 (current):** local repo, pre-commit (gitleaks + Conventional Commits),
-and a GitHub Actions workflow that runs those same checks. There is no API, UI,
-or AWS integration yet. Signed commits and branch protection are **not** used.
+## Current functionality
+
+- `GET /` returns a basic greeting; `GET /health` returns `{"status":"ok"}`.
+- `collect_s3_buckets(client)` reads bucket region, public access block
+  configuration, ACL grants, and bucket policy into domain `Resource` objects.
+  It accepts a boto3 S3 client; it is not exposed through an API endpoint.
+- The domain package defines `Resource`, `Finding`, and finding severity.
+- Alembic has an initial migration for a `cloud_accounts` table. The API does
+  not currently read or write to PostgreSQL.
+- GitHub Actions runs the repository's pre-commit hooks on pushes to `main`
+  and pull requests.
 
 Stack decisions: [`docs/adr/0001-tech-stack.md`](docs/adr/0001-tech-stack.md).
 Threat model (draft): [`docs/threat-model.md`](docs/threat-model.md).
-Create the GitHub remote and watch Actions: [`docs/github-setup.md`](docs/github-setup.md).
-Agent/contributor rules: [`AGENTS.md`](AGENTS.md).
+GitHub remote setup: [`docs/github-setup.md`](docs/github-setup.md).
+Contributor conventions: [`AGENTS.md`](AGENTS.md).
 
-## Local environment
+## Local development
 
-This project uses **uv** and **Python 3.12**. Do not use Conda for this repo.
+Use **uv** with **Python 3.12**. After installing uv and Python 3.12, clone the
+repository and run:
 
 ```bash
-# uv and Python 3.12 (skip if already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-uv python install 3.12
-
-# clone, then:
-cd cloud-sec-dashboard
 uv sync --group dev
 uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
 ```
 
-Same checks as CI:
+Start the API locally with hot reload:
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+The API is available at `http://127.0.0.1:8000`; interactive API docs are at
+`http://127.0.0.1:8000/docs`.
+
+## PostgreSQL
+
+The Compose configuration starts PostgreSQL 16 with a local development
+database named `csd`:
+
+```bash
+make db-up
+```
+
+The configured default connection URL is
+`postgresql+psycopg://csd:csd@localhost:5432/csd`. To create the current schema,
+run:
+
+```bash
+uv run alembic upgrade head
+```
+
+Stop the database with `make db-down`. The API currently starts without a
+database connection; database persistence is not implemented yet.
+
+## Checks
+
+Run the same pre-commit checks as CI:
 
 ```bash
 uv run pre-commit run --all-files
 ```
 
-### Docker (needed in later phases)
-
-Phase 0 does not start containers, but Postgres/Testcontainers will need Docker
-from WSL2. If `docker ps` prints that Docker could not be found in this distro:
-
-1. Open **Docker Desktop** on Windows.
-2. **Settings → General**: Use the WSL 2 based engine.
-3. **Settings → Resources → WSL integration**: enable your Ubuntu distro.
-4. Apply, then in WSL run `docker ps` again.
-
-### GitHub CLI
-
-`gh` should be on `PATH` (`~/.local/bin/gh`). Authenticate with
-`gh auth login` when you create the public remote (see
-[`docs/github-setup.md`](docs/github-setup.md)).
+The repository also provides `make test` for pytest and `make lint` for Ruff
+and mypy.
 
 ## License
 
