@@ -1,8 +1,101 @@
 """Rule for identifying publicly accessible S3 buckets."""
 
-from app.domain.models import Finding, Resource
+from collections.abc import Mapping
+from typing import Any
+
+from app.domain.models import Finding, Resource, Severity
+
+_PUBLIC_ACL_URIS = frozenset(
+    {
+        "http://acs.amazonaws.com/groups/global/AllUsers",
+        "http://acs.amazonaws.com/groups/global/AuthenticatedUsers",
+    }
+)
 
 
 def check_s3_public_bucket(resource: Resource) -> list[Finding]:
     """Return findings for a publicly accessible S3 bucket."""
-    return []
+    if resource.resource_type != "s3_bucket":
+        return []
+
+    public_access_block = resource.config.get("public_access_block")
+    acl_is_exposed = _acl_is_public(resource.config.get("acl", [])) and not (
+        _acl_is_blocked(public_access_block)
+    )
+    policy_is_exposed = _policy_is_public(resource.config.get("policy")) and not (
+        _policy_is_blocked(public_access_block)
+    )
+
+    if not acl_is_exposed and not policy_is_exposed:
+        return []
+
+    return [
+        Finding(
+            rule_id="s3-public-access",
+            resource_id=resource.identifier,
+            severity=Severity.HIGH,
+            message="Bucket permits public access.",
+        )
+    ]
+
+
+def _acl_is_public(grants: Any) -> bool:
+    """Return whether any ACL grant targets a global S3 group."""
+    if not isinstance(grants, list):
+        return False
+
+    return any(
+        isinstance(grant, Mapping)
+        and isinstance(grant.get("Grantee"), Mapping)
+        and grant["Grantee"].get("URI") in _PUBLIC_ACL_URIS
+        for grant in grants
+    )
+
+
+def _policy_is_public(policy: Any) -> bool:
+    """Return whether an Allow statement grants access to every principal."""
+    if not isinstance(policy, Mapping):
+        return False
+
+    statements = policy.get("Statement", [])
+    if isinstance(statements, Mapping):
+        statements = [statements]
+    if not isinstance(statements, list):
+        return False
+
+    return any(
+        isinstance(statement, Mapping)
+        and statement.get("Effect") == "Allow"
+        and _principal_is_public(statement.get("Principal"))
+        for statement in statements
+    )
+
+
+def _principal_is_public(principal: Any) -> bool:
+    """Return whether a policy principal includes the public wildcard."""
+    if principal == "*":
+        return True
+    if isinstance(principal, Mapping):
+        aws_principal = principal.get("AWS")
+        return aws_principal == "*" or (
+            isinstance(aws_principal, list) and "*" in aws_principal
+        )
+    if isinstance(principal, list):
+        return any(_principal_is_public(item) for item in principal)
+    return False
+
+
+def _acl_is_blocked(public_access_block: Any) -> bool:
+    """Return whether public ACL grants are neutralized by bucket settings."""
+    return isinstance(public_access_block, Mapping) and any(
+        public_access_block.get(setting, False)
+        for setting in ("BlockPublicAcls", "IgnorePublicAcls")
+    )
+
+
+def _policy_is_blocked(public_access_block: Any) -> bool:
+    """Return whether public policy access is neutralized by bucket settings."""
+    return isinstance(public_access_block, Mapping) and any(
+        public_access_block.get(setting, False)
+        for setting in ("BlockPublicPolicy", "RestrictPublicBuckets")
+    )
